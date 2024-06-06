@@ -1,6 +1,6 @@
 ﻿namespace Match.Core.Enums
 {
-    public enum SuitType
+    public enum Suit
     {
         Clubs,
         Diamonds,
