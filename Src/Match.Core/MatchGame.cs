@@ -6,10 +6,17 @@ namespace Match.Core;
 
 public class MatchGame : IMatchGame
 {
+    private readonly IRandomProvider _randomProvider;
+
+    public MatchGame(IRandomProvider randomProvider)
+    {
+        _randomProvider = randomProvider ?? throw new ArgumentNullException(nameof(randomProvider));
+    }
+
     public int Play(int packQuantity, int matchConditionIndex)
     {
-        var cards = PackFactory.CreateDeck(packQuantity);
-        var shuffled = Shuffle(cards.ToArray());
+        var cards = DeckFactory.Create(packQuantity);
+        var shuffled = _randomProvider.Shuffle(cards.ToArray());
         var deck = ConvertToQueue(shuffled);
 
         var pile = new List<Card>();
@@ -59,26 +66,17 @@ public class MatchGame : IMatchGame
         return gameWinner;
     }
 
-    private T[] Shuffle<T>(T[] source)
-    {
-        Random.Shared.Shuffle(source);
-        return source;
-    }
-
     private int GetMatchWinner(Dictionary<int, List<Card>> players)
     {
         var playerNumbers = players.Select(x => x.Key).ToArray();
-        Shuffle(playerNumbers);
+        var winner = _randomProvider.Shuffle(playerNumbers).First();
 
-        return playerNumbers.First();
+        return winner;
     }
 
     private static int GetGameWinner(Dictionary<int, List<Card>> players) => players.OrderByDescending(x => x.Value.Count).First().Key;
 
-    private static bool IsDraw(Dictionary<int, List<Card>> players)
-    {
-        return players[1].Count() == players[2].Count();
-    }
+    private static bool IsDraw(Dictionary<int, List<Card>> players) => players[1].Count == players[2].Count;
 
     private static Queue<Card> ConvertToQueue(IEnumerable<Card> cards)
     {
@@ -102,6 +100,6 @@ public class MatchGame : IMatchGame
         MatchCondition.SuitsOfTwoCardsMustMatch => card1.Suit.Equals(card2.Suit),
         MatchCondition.ValuesOfTwoCardsMustMatch => card1.Value.Equals(card2.Value),
         MatchCondition.BothSuitAndValueMustMatch => card1.Suit.Equals(card2.Suit) && card1.Value.Equals(card2.Value),
-        _ => throw new NotSupportedException($"Match condition not supported: {matchCondition}"),
+        _ => throw new NotImplementedException($"Match condition not supported: {matchCondition}"),
     };
 }

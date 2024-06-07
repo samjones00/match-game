@@ -3,9 +3,9 @@ using Match.Core.Models;
 
 namespace Match.Core
 {
-    public static class PackFactory
+    public static class DeckFactory
     {
-        public static IEnumerable<Card> CreateDeck(int packQuantity) => Enumerable.Range(0, packQuantity).Select(x => CreatePack()).SelectMany(x => x);
+        public static IEnumerable<Card> Create(int packQuantity) => Enumerable.Range(0, packQuantity).Select(x => CreatePack()).SelectMany(x => x);
 
         private static List<Card> CreatePack()
         {
